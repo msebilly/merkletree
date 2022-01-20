@@ -646,7 +646,7 @@ func TestDemo(t *testing.T) {
 
 	//Get the Merkle Root of the tree
 	mr := tree.MerkleRoot()
-	log.Println(mr)
+	//log.Println(mr)
 	fmt.Println(hex.EncodeToString(mr))
 
 	//Verify the entire tree (hashes for each node) is valid
@@ -667,6 +667,9 @@ func TestDemo(t *testing.T) {
 	//String representation
 	log.Println(tree)
 	proof, _, _ := tree.GetMerklePath(list[6])
+	fmt.Printf("Root: %s\n", hex.EncodeToString(mr))
+	fmt.Printf("Leaf: %s\n", list[6])
+	fmt.Printf("Merkle Proof: \n")
 	for _, v := range proof {
 		fmt.Println(hex.EncodeToString(v))
 	}
