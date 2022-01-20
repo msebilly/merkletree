@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"github.com/wealdtech/go-merkletree/keccak256"
 	"hash"
 )
 
@@ -74,8 +75,10 @@ func (n *Node) calculateNodeHash() ([]byte, error) {
 	if _, err := h.Write(append(n.Left.Hash, n.Right.Hash...)); err != nil {
 		return nil, err
 	}
-
-	return h.Sum(nil), nil
+	//h, _ := hex.DecodeString(s)
+	k := keccak256.New()
+	return k.Hash(append(n.Left.Hash, n.Right.Hash...)), nil
+	//return h.Sum(nil), nil
 }
 
 //NewTree creates a new Merkle Tree using the content cs.
@@ -150,6 +153,7 @@ func buildWithContent(cs []Content, t *MerkleTree) (*Node, []*Node, error) {
 	var leafs []*Node
 	for _, c := range cs {
 		hash, err := c.CalculateHash()
+		//fmt.Printf("%s %s\n", c, hex.EncodeToString(hash))
 		if err != nil {
 			return nil, nil, err
 		}
@@ -193,11 +197,13 @@ func buildIntermediate(nl []*Node, t *MerkleTree) (*Node, error) {
 		if _, err := h.Write(chash); err != nil {
 			return nil, err
 		}
+		k := keccak256.New()
 		n := &Node{
 			Left:  nl[left],
 			Right: nl[right],
-			Hash:  h.Sum(nil),
-			Tree:  t,
+			//Hash:  h.Sum(nil),
+			Hash: k.Hash(chash),
+			Tree: t,
 		}
 		nodes = append(nodes, n)
 		nl[left].Parent = n

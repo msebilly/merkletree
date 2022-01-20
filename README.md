@@ -95,6 +95,81 @@ func main() {
 }
 
 ```
+#### Example for Keccak256
+```go
+type Keccak256Content struct {
+	x string
+}
+
+func has0xPrefix(str string) bool {
+	return len(str) >= 2 && str[0] == '0' && (str[1] == 'x' || str[1] == 'X')
+}
+
+//CalculateHash hashes the values of a TestContent
+func (t Keccak256Content) CalculateHash() ([]byte, error) {
+	s := t.x
+	if has0xPrefix(s) {
+		s = s[2:]
+	}
+	if len(s)%2 == 1 {
+		s = "0" + s
+	}
+	h, _ := hex.DecodeString(s)
+	k := keccak256.New()
+	return k.Hash(h), nil
+}
+
+//Equals tests for equality of two Contents
+func (t Keccak256Content) Equals(other Content) (bool, error) {
+	return t.x == other.(Keccak256Content).x, nil
+}
+
+func main() {
+    var list []Content
+    list = append(list, Keccak256Content{x: "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"})
+    list = append(list, Keccak256Content{x: "0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2"})
+    list = append(list, Keccak256Content{x: "0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db"})
+    list = append(list, Keccak256Content{x: "0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB"})
+    list = append(list, Keccak256Content{x: "0x617F2E2fD72FD9D5503197092aC168c91465E7f2"})
+    list = append(list, Keccak256Content{x: "0x17F6AD8Ef982297579C203069C1DbfFE4348c372"})
+    list = append(list, Keccak256Content{x: "0x5c6B0f7Bf3E7ce046039Bd8FABdfD3f9F5021678"})
+    //list = append(list, Keccak256Content{x: "0x5c6B0f7Bf3E7ce046039Bd8FABdfD3f9F5021678"})
+    
+    //Create a new Merkle Tree from the list of Content
+    tree, err := NewTree(list)
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    //Get the Merkle Root of the tree
+    mr := tree.MerkleRoot()
+    log.Println(mr)
+    fmt.Println(hex.EncodeToString(mr))
+    
+    //Verify the entire tree (hashes for each node) is valid
+    vt, err := tree.VerifyTree()
+    if err != nil {
+        log.Fatal(err)
+    }
+    log.Println("Verify Tree: ", vt)
+    
+    //Verify a specific content in in the tree
+    vc, err := tree.VerifyContent(list[0])
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    log.Println("Verify Content: ", vc)
+    
+    //String representation
+    log.Println(tree)
+    proof, _, _ := tree.GetMerklePath(list[6])
+    for _, v := range proof {
+        fmt.Println(hex.EncodeToString(v))
+    }
+}
+```
+
 #### Sample
 ![merkletree](merkle_tree.png)
 
