@@ -11,6 +11,7 @@ import (
 	"github.com/wealdtech/go-merkletree/keccak256"
 	"hash"
 	"log"
+	"strings"
 	"testing"
 )
 
@@ -84,14 +85,6 @@ func (t Keccak256Content) Equals(other Content) (bool, error) {
 
 //-----------------------------------------------------------------------------
 func calHash(hash []byte, hashStrategy func() hash.Hash) ([]byte, error) {
-	/*
-		h := hashStrategy()
-		if _, err := h.Write(hash); err != nil {
-			return nil, err
-		}
-
-		return h.Sum(nil), nil
-	*/
 	k := keccak256.New()
 	return k.Hash(hash), nil
 }
@@ -639,7 +632,7 @@ func TestDemo(t *testing.T) {
 	//list = append(list, Keccak256Content{x: "0x5c6B0f7Bf3E7ce046039Bd8FABdfD3f9F5021678"})
 
 	//Create a new Merkle Tree from the list of Content
-	tree, err := NewTree(list)
+	tree, err := NewTree(list, true)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -647,7 +640,6 @@ func TestDemo(t *testing.T) {
 	//Get the Merkle Root of the tree
 	mr := tree.MerkleRoot()
 	//log.Println(mr)
-	fmt.Println(hex.EncodeToString(mr))
 
 	//Verify the entire tree (hashes for each node) is valid
 	vt, err := tree.VerifyTree()
@@ -665,13 +657,17 @@ func TestDemo(t *testing.T) {
 	log.Println("Verify Content: ", vc)
 
 	//String representation
-	log.Println(tree)
-	proof, _, _ := tree.GetMerklePath(list[6])
-	fmt.Printf("Root: %s\n", hex.EncodeToString(mr))
-	fmt.Printf("Leaf: %s\n", list[6])
-	fmt.Printf("Merkle Proof: \n")
-	for _, v := range proof {
-		fmt.Println(hex.EncodeToString(v))
-	}
+	//log.Println(tree)
 
+	c := list[5]
+	h, _ := c.CalculateHash()
+	proof, _, _ := tree.GetMerklePath(c)
+	fmt.Printf("Merkle Root : %s\n", hex.EncodeToString(mr))
+	fmt.Printf("Merkle Leaf : %x %s\n", h, c)
+	fmt.Printf("Merkle Proof: \n")
+
+	level := len(proof)
+	for k, v := range proof {
+		fmt.Printf("(%d) %s %s \n", level-k-1, strings.Repeat(" ", level-k-1), hex.EncodeToString(v))
+	}
 }
