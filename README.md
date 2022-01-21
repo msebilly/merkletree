@@ -136,7 +136,7 @@ func main() {
     //list = append(list, Keccak256Content{x: "0x5c6B0f7Bf3E7ce046039Bd8FABdfD3f9F5021678"})
     
     //Create a new Merkle Tree from the list of Content
-    tree, err := NewTree(list)
+    tree, err := NewTree(list, true)
     if err != nil {
         log.Fatal(err)
     }
