@@ -631,23 +631,80 @@ func TestDemo(t *testing.T) {
 	list = append(list, Keccak256Content{x: "0x17F6AD8Ef982297579C203069C1DbfFE4348c372"})
 	list = append(list, Keccak256Content{x: "0x5c6B0f7Bf3E7ce046039Bd8FABdfD3f9F5021678"})
 	//list = append(list, Keccak256Content{x: "0x5c6B0f7Bf3E7ce046039Bd8FABdfD3f9F5021678"})
+	/*
+		//Create a new Merkle Tree from the list of Content
+		tree, err := NewTree(list, true)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	//Create a new Merkle Tree from the list of Content
+		//Get the Merkle Root of the tree
+		mr := tree.MerkleRoot()
+		//log.Println(mr)
+
+		//Verify the entire tree (hashes for each node) is valid
+		vt, err := tree.VerifyTree()
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("Verify Tree: ", vt)
+
+		//Verify a specific content in in the tree
+		vc, err := tree.VerifyContent(list[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Println("Verify Content: ", vc)
+
+		//String representation
+		//log.Println(tree)
+
+		c := list[0]
+		h, _ := c.CalculateHash()
+		proof, _, _ := tree.GetMerklePath(c)
+		fmt.Printf("Merkle Root : %s\n", hex.EncodeToString(mr))
+		fmt.Printf("Merkle Leaf : %x %s\n", h, c)
+		fmt.Printf("Merkle Proof: \n")
+
+		level := len(proof)
+		for k, v := range proof {
+			fmt.Printf("(%d) %s %s \n", level-k-1, strings.Repeat(" ", level-k-1), hex.EncodeToString(v))
+		}
+	*/
+	printMerkleTree(list)
+}
+
+func printMerkleNode(node *Node, level int) {
+	if node.IsLeaf() {
+		fmt.Printf("(%d) %s %s (data: %s)\n", level+1, strings.Repeat(" ", level+1), hex.EncodeToString(node.Hash), node.C)
+	} else {
+		fmt.Printf("(%d) %s %s\n", level, strings.Repeat(" ", level), hex.EncodeToString(node.Hash))
+	}
+
+	if node.Left != nil {
+		printMerkleNode(node.Left, level+1)
+	}
+
+	if node.Right != nil {
+		printMerkleNode(node.Right, level+1)
+	}
+}
+
+func printMerkleTree(list []Content) {
+	fmt.Println("\t=== Mekle Tree ===")
+
 	tree, err := NewTree(list, true)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	//Get the Merkle Root of the tree
-	mr := tree.MerkleRoot()
-	//log.Println(mr)
 
 	//Verify the entire tree (hashes for each node) is valid
 	vt, err := tree.VerifyTree()
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Verify Tree: ", vt)
+	fmt.Println("Verify Tree: ", vt)
 
 	//Verify a specific content in in the tree
 	vc, err := tree.VerifyContent(list[0])
@@ -655,20 +712,32 @@ func TestDemo(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	log.Println("Verify Content: ", vc)
+	fmt.Println("Verify Content: ", vc)
 
-	//String representation
-	//log.Println(tree)
-
-	c := list[0]
-	h, _ := c.CalculateHash()
-	proof, _, _ := tree.GetMerklePath(c)
-	fmt.Printf("Merkle Root : %s\n", hex.EncodeToString(mr))
-	fmt.Printf("Merkle Leaf : %x %s\n", h, c)
-	fmt.Printf("Merkle Proof: \n")
-
-	level := len(proof)
-	for k, v := range proof {
-		fmt.Printf("(%d) %s %s \n", level-k-1, strings.Repeat(" ", level-k-1), hex.EncodeToString(v))
+	fmt.Println("------------------------------------")
+	fmt.Println("Whitelist")
+	for k, v := range list {
+		h, _ := v.CalculateHash()
+		fmt.Printf("%d  %s  %s\n", k, v, hex.EncodeToString(h))
 	}
+	fmt.Println("------------------------------------")
+	//fmt.Println(tree)
+	//fmt.Println("------------------------------------")
+	printMerkleNode(tree.Root, 0)
+
+	mr := tree.MerkleRoot()
+	for i := 0; i < len(list); i++ {
+		h, _ := list[i].CalculateHash()
+		fmt.Println("------------------------------------")
+		fmt.Printf("Root: %s\n", hex.EncodeToString(mr))
+		fmt.Printf("Leaf: %s %s\n", hex.EncodeToString(h), list[i])
+		fmt.Println("Proof:")
+		proof, _, _ := tree.GetMerklePath(list[i])
+		level := len(proof)
+		for k, v := range proof {
+			fmt.Printf("(%d) %s %s \n", level-k-1, strings.Repeat(" ", level-k-1), hex.EncodeToString(v))
+		}
+	}
+	fmt.Println("------------------------------------")
+	fmt.Println("\t=== End ===")
 }

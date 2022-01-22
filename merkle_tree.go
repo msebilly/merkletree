@@ -214,7 +214,7 @@ func buildIntermediate(nl []*Node, t *MerkleTree) (*Node, error) {
 			n = &Node{
 				Left:  nl[left],
 				Right: nil,
-				Hash:  k.Hash(chash),
+				Hash:  nl[left].Hash,
 				Tree:  t,
 			}
 			nodes = append(nodes, n)
