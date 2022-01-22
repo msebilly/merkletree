@@ -42,6 +42,10 @@ type Node struct {
 	C      Content
 }
 
+func (n *Node) IsLeaf() bool {
+	return n.leaf
+}
+
 //verifyNode walks down the tree until hitting a leaf, calculating the hash at each level
 //and returning the resulting hash of Node n.
 func (n *Node) verifyNode(sort bool) ([]byte, error) {
