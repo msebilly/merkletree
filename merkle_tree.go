@@ -233,7 +233,7 @@ func buildIntermediate(nl []*Node, t *MerkleTree) (*Node, error) {
 			nl[left].Parent = n
 			nl[right].Parent = n
 		}
-		if len(nl) == 2 {
+		if len(nl) <= 2 {
 			return n, nil
 		}
 	}

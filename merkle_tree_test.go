@@ -622,6 +622,7 @@ func TestMerkleTree_MerklePath(t *testing.T) {
 */
 func TestDemo(t *testing.T) {
 	var list []Content
+
 	list = append(list, Keccak256Content{x: "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"})
 	list = append(list, Keccak256Content{x: "0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2"})
 	list = append(list, Keccak256Content{x: "0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db"})
@@ -659,7 +660,7 @@ func TestDemo(t *testing.T) {
 	//String representation
 	//log.Println(tree)
 
-	c := list[5]
+	c := list[0]
 	h, _ := c.CalculateHash()
 	proof, _, _ := tree.GetMerklePath(c)
 	fmt.Printf("Merkle Root : %s\n", hex.EncodeToString(mr))
