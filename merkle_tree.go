@@ -69,7 +69,7 @@ func (n *Node) verifyNode(sort bool) ([]byte, error) {
 			temp = append(rightBytes, leftBytes...)
 		}
 	} else {
-		temp = append(leftBytes)
+		return n.Left.Hash, nil
 	}
 	k := keccak256.New()
 	return k.Hash(temp), nil
